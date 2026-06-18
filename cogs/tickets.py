@@ -199,24 +199,46 @@ class Tickets(commands.Cog):
     # ---------------------------------------------------
     # Ping User
     # ---------------------------------------------------
-    async def handle_ping_user(self, interaction: discord.Interaction, channel_id: int):
-        store = storage.get_store(STORE_NAME)
-        info = store.get(str(channel_id))
-        if not info:
-            await interaction.response.send_message("Αυτό το ticket δεν υπάρχει πια στο σύστημα.", ephemeral=True)
-            return
+async def handle_ping_user(self, interaction: discord.Interaction, channel_id: int):
+    store = storage.get_store(STORE_NAME)
+    info = store.get(str(channel_id))
+    if not info:
+        await interaction.response.send_message(
+            "Αυτό το ticket δεν υπάρχει πια στο σύστημα.", ephemeral=True
+        )
+        return
 
-        if interaction.user.id == info["opener_id"]:
-            await interaction.response.send_message("Δεν μπορείς να κάνεις ping τον εαυτό σου.", ephemeral=True)
-            return
+    # Ownership + Managers + Staff — όλοι εκτός plain member/opener
+    allowed_roles = [
+        *config.STAFF_TEAM_ROLE_IDS,           # STAFF, MANAGER, OWNERSHIP
+        config.CIVILIAN_MANAGER_ROLE_ID,
+        config.CRIMINAL_MANAGER_ROLE_ID
+    ]
+    if not has_roles(interaction.user, allowed_roles):
+        await interaction.response.send_message(
+            "Δεν έχεις δικαίωμα να χρησιμοποιήσεις αυτό το κουμπί.", ephemeral=True
+        )
+        return
 
-        opener = interaction.guild.get_member(info["opener_id"])
-        await interaction.response.send_message(f"🔔 {opener.mention if opener else ''}", ephemeral=False)
-        if opener:
-            try:
-                await opener.send(f"🔔 Έχεις ειδοποίηση στο ticket σου: {interaction.channel.mention}")
-            except discord.Forbidden:
-                pass
+    opener = interaction.guild.get_member(info["opener_id"])
+    if opener is None:
+        await interaction.response.send_message(
+            "⚠️ Ο χρήστης δεν βρίσκεται πια στον server.", ephemeral=True
+        )
+        return
+
+    dm_sent = True
+    try:
+        await opener.send(
+            f"🔔 Έχεις ειδοποίηση στο ticket σου: {interaction.channel.mention}"
+        )
+    except discord.Forbidden:
+        dm_sent = False
+
+    note = "" if dm_sent else " _(τα DMs του είναι κλειστά)_"
+    await interaction.response.send_message(
+        f"🔔 {opener.mention}{note}", ephemeral=False
+    )
 
     # ---------------------------------------------------
     # Κεντρικός interaction listener (persistent components)
