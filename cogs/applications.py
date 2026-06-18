@@ -31,7 +31,7 @@ def _safe_name(text: str) -> str:
     return "".join(c for c in text if c.isalnum() or c == "-")[:90]
 
 
-class DenyReasonModal(ui.Modal, title="Αιτιολογία Απόρριψης"):
+class DenyReasonModal(ui.Modal, title="Αιτιολόγιση Απόρριψης"):
     reason = ui.TextInput(label="Λόγος απόρριψης", style=discord.TextStyle.paragraph, required=True, max_length=500)
 
     def __init__(self, channel_id: int, cog: "Applications"):
@@ -53,7 +53,7 @@ class Applications(commands.Cog):
     async def panel_applications(self, interaction: discord.Interaction):
         container = build_base_container(
             title="📋 Applications",
-            description="Επίλεξε σε τι θες να κάνεις αίτηση και πάτησε **Apply**.",
+            description="Επίλεξε σε τι θες να κάνεις αίτηση και πάτησε **Apply**. Έχεις 30 λεπτά να ολοκληρλωσεις την αίτηση σου αλλιώς θα απποριφθεί ",
             banner_url=config.APPLICATIONS_BANNER_URL,
         )
         add_separator(container)
@@ -108,7 +108,7 @@ class Applications(commands.Cog):
 
         container = build_base_container(
             title=f"{data['label']} Application",
-            description=f"{user.mention}\nΠάτησε **Start Your Application** όταν είσαι έτοιμος/η.",
+            description=f"{user.mention}\nΠάτησε **Start Your Application** όταν είσαι έτοιμος/η. (Χρόνος ολοκλήρωσης: 30 λεπτά)",
         )
         add_separator(container)
         start_btn = ui.Button(label="Start Your Application", style=discord.ButtonStyle.success, custom_id=f"app_start:{channel.id}")
@@ -194,7 +194,7 @@ class Applications(commands.Cog):
 
         container = build_base_container(
             title=f"📋 Νέα Αίτηση — {type_label}",
-            description=f"Αιτών: {applicant.mention if applicant else info['user_id']}",
+            description=f"User: {applicant.mention if applicant else info['user_id']}",
         )
         add_separator(container)
         for q, a in zip(questions, info["answers"]):
@@ -233,7 +233,7 @@ class Applications(commands.Cog):
             if role and applicant:
                 await applicant.add_roles(role, reason="Application accepted")
             info["status"] = "accepted"
-            dm_text = f"✅ Η αίτηση σου ({config.APPLICATION_TYPES[info['type']]['label']}) έγινε **δεκτή**! Θα πάρεις ρόλο 'Waiting for Interview'."
+            dm_text = f"✅ Η αίτηση σου ({config.APPLICATION_TYPES[info['type']]['label']}) έγινε **δεκτή**! Θα πάρεις ρόλο 'Waiting for Interview'. Ενημέωσε στο κανάλι Interview chat πότε μπορείς για το interview σου."
         else:
             info["status"] = "denied"
             dm_text = f"❌ Η αίτηση σου ({config.APPLICATION_TYPES[info['type']]['label']}) **απορρίφθηκε**.\nΛόγος: {reason}"
@@ -251,7 +251,7 @@ class Applications(commands.Cog):
         status_text = "✅ **Accepted**" if accepted else f"❌ **Denied** — {reason}"
         container = build_base_container(
             title=f"📋 Αίτηση — {config.APPLICATION_TYPES[info['type']]['label']}",
-            description=f"Αιτών: {applicant.mention if applicant else info['user_id']}\n\n{status_text}\nΧειριστής: {interaction.user.mention}",
+            description=f"User: {applicant.mention if applicant else info['user_id']}\n\n{status_text}\nUser Accepted: {interaction.user.mention}",
         )
         view = ui.LayoutView(timeout=None)
         view.add_item(container)
@@ -274,24 +274,24 @@ class Applications(commands.Cog):
         if channel:
             await channel.delete(reason=f"Application closed by {interaction.user}")
 
-    async def handle_ping_staff(self, interaction: discord.Interaction, channel_id: int):
+    async def handle_ping_user(self, interaction: discord.Interaction, channel_id: int):
         store = storage.get_store(STORE_NAME)
         info = store.get(str(channel_id))
         if not info or interaction.user.id != info["user_id"]:
-            await interaction.response.send_message("Μόνο ο αιτών μπορεί να κάνει ping το staff.", ephemeral=True)
+            await interaction.response.send_message("Μόνο το staff μπορεί να κάνει ping.", ephemeral=True)
             return
 
         guild = interaction.guild
-        mentions = " ".join(f"<@&{rid}>" for rid in config.STAFF_TEAM_ROLE_IDS)
-        await interaction.response.send_message(f"🔔 {mentions} — χρειάζονται βοήθεια εδώ!", ephemeral=False)
+        mentions = " ".join(f"<@&{rid}>" for rid in config.user)
+        await interaction.response.send_message(f"🔔 {mentions} — Τι χρειάζεσε?", ephemeral=False)
 
-        for role_id in config.STAFF_TEAM_ROLE_IDS:
+        for role_id in config.user:
             role = guild.get_role(role_id)
             if not role:
                 continue
             for member in role.members:
                 try:
-                    await member.send(f"🔔 Σε χρειάζονται στο application channel: {interaction.channel.mention}")
+                    await member.send(f"🔔 Συνέχισε την αίτηση σου.: {interaction.channel.mention}")
                 except discord.Forbidden:
                     pass
 
