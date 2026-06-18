@@ -42,7 +42,7 @@ STAFF_TEAM_ROLE_IDS = [STAFF_ROLE_ID, MANAGER_ROLE_ID, OWNERSHIP_ROLE_ID]
 # TICKET SYSTEM #1 - SUPPORT (dropdown, 4 κατηγορίες, ξεχωριστό category η κάθε μία)
 # =========================================================
 TICKET_SUPPORT_CHANNEL_ID = 1516805389642109014  # PLACEHOLDER: πού θα σταλεί το panel (slash command target)
-TICKET_SUPPORT_BANNER_URL = "https://i.imgur.com/JRVyxE3.jpeg"
+TICKET_SUPPORT_BANNER_URL = "https://i.imgur.com/iBizvBg.jpeg"
 TICKET_SUPPORT_THUMBNAIL_URL = "https://i.imgur.com/RRjWHDE.gif"
 
 CAT_TICKET_OWNERSHIP_ID =  1517140889988894740 # PLACEHOLDER category
@@ -55,7 +55,7 @@ CAT_TICKET_BUG_ID        = 1517141146608861244 # PLACEHOLDER category
 # =========================================================
 CAT_JOBS_ID = 1516834911913250966  # PLACEHOLDER (ΚΟΙΝΟ category civilian + criminal)
 
-TICKET_JOBS_BANNER_URL = "https://i.imgur.com/JRVyxE3.jpeg"
+TICKET_JOBS_BANNER_URL = "https://i.imgur.com/iBizvBg.jpeg"
 TICKET_JOBS_THUMBNAIL_URL = "https://i.imgur.com/RRjWHDE.gif"
 
 # =========================================================
@@ -63,7 +63,7 @@ TICKET_JOBS_THUMBNAIL_URL = "https://i.imgur.com/RRjWHDE.gif"
 # =========================================================
 CAT_DONATE_ID = 1517006312041611465  # PLACEHOLDER category
 
-TICKET_DONATE_BANNER_URL = "https://i.imgur.com/JRVyxE3.jpeg"
+TICKET_DONATE_BANNER_URL = "https://i.imgur.com/iBizvBg.jpeg"
 TICKET_DONATE_THUMBNAIL_URL = "https://i.imgur.com/RRjWHDE.gif"
 
 # Channel όπου γίνεται ping το staff team όταν ανοίγει ΟΠΟΙΟΔΗΠΟΤΕ ticket (support/jobs/donate) ή temp voice
@@ -86,7 +86,7 @@ TEMP_VOICE_CATEGORY_ID     = 1516842553838800986  # PLACEHOLDER (εκεί δημ
 STAFF_ACTIVITY_VOICE_CHANNEL_ID = 1516805389453103144  # PLACEHOLDER (το channel που μετράμε χρόνο)
 STAFF_ACTIVITY_PANEL_CHANNEL_ID = 1516805389453103143  # PLACEHOLDER (πού στέλνεται/μένει το leaderboard panel)
 STAFF_ACTIVITY_LOG_CHANNEL_ID   = 1516805389126209635 # PLACEHOLDER
-STAFF_ACTIVITY_BANNER_URL = "https://i.imgur.com/JRVyxE3.jpeg"
+STAFF_ACTIVITY_BANNER_URL = "https://i.imgur.com/iBizvBg.jpeg"
 
 # =========================================================
 # LOGS (Requirement 8)
@@ -112,7 +112,7 @@ LOG_SAY_DMALL_CHANNEL_ID    =  1516805389264355482# PLACEHOLDER (say, say2, dmal
 # =========================================================
 APPLICATIONS_PANEL_CHANNEL_ID = 1516805389943836722  # PLACEHOLDER (πού στέλνεται το panel)
 APPLICATIONS_CATEGORY_ID      = 1517005764735012984  # PLACEHOLDER (εκεί ανοίγουν τα application channels)
-APPLICATIONS_BANNER_URL = "https://i.imgur.com/JRVyxE3.jpeg"
+APPLICATIONS_BANNER_URL = "https://i.imgur.com/iBizvBg.jpeg"
 
 # Τύποι αιτήσεων -> ερωτήσεις. Βάλε τις ερωτήσεις σου εδώ (μία λίστα string ανά τύπο).
 APPLICATION_TYPES = {
