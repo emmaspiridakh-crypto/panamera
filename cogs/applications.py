@@ -31,7 +31,7 @@ def _safe_name(text: str) -> str:
     return "".join(c for c in text if c.isalnum() or c == "-")[:90]
 
 
-class DenyReasonModal(ui.Modal, title="Αιτιολόγιση Απόρριψης"):
+class DenyReasonModal(ui.Modal, title="Αιτιολογία Απόρριψης"):
     reason = ui.TextInput(label="Λόγος απόρριψης", style=discord.TextStyle.paragraph, required=True, max_length=500)
 
     def __init__(self, channel_id: int, cog: "Applications"):
@@ -53,7 +53,7 @@ class Applications(commands.Cog):
     async def panel_applications(self, interaction: discord.Interaction):
         container = build_base_container(
             title="📋 Applications",
-            description="Επίλεξε σε τι θες να κάνεις αίτηση και πάτησε **Apply**. Έχεις 30 λεπτά να ολοκληρλωσεις την αίτηση σου αλλιώς θα απποριφθεί ",
+            description="Επίλεξε σε τι θες να κάνεις αίτηση και πάτησε **Apply**.",
             banner_url=config.APPLICATIONS_BANNER_URL,
         )
         add_separator(container)
@@ -64,7 +64,7 @@ class Applications(commands.Cog):
 
         view = ui.LayoutView(timeout=None)
         view.add_item(container)
-        await interaction.channel.send(view=view)
+        await interaction.channel.send(view=view, flags=discord.MessageFlags(is_components_v2=True))
         await interaction.response.send_message("✅ Στάλθηκε.", ephemeral=True)
 
     # ---------------- APPLY -> δημιουργία channel ----------------
@@ -108,18 +108,18 @@ class Applications(commands.Cog):
 
         container = build_base_container(
             title=f"{data['label']} Application",
-            description=f"{user.mention}\nΠάτησε **Start Your Application** όταν είσαι έτοιμος/η. (Χρόνος ολοκλήρωσης: 30 λεπτά)",
+            description=f"{user.mention}\nΠάτησε **Start Your Application** όταν είσαι έτοιμος/η.",
         )
         add_separator(container)
         start_btn = ui.Button(label="Start Your Application", style=discord.ButtonStyle.success, custom_id=f"app_start:{channel.id}")
         close_btn = ui.Button(label="Close", style=discord.ButtonStyle.danger, custom_id=f"app_close:{channel.id}")
-        ping_btn = ui.Button(label="Ping Staff", style=discord.ButtonStyle.secondary,
-                              emoji=emoji("applications", "ping_staff"), custom_id=f"app_ping:{channel.id}")
+        ping_btn = ui.Button(label="Ping User", style=discord.ButtonStyle.secondary,
+                              emoji=emoji("tickets", "ping"), custom_id=f"app_ping_user:{channel.id}")
         add_action_row(container, start_btn, close_btn, ping_btn)
 
         view = ui.LayoutView(timeout=None)
         view.add_item(container)
-        await channel.send(content=user.mention, view=view)
+        await channel.send(view=view, flags=discord.MessageFlags(is_components_v2=True))
         await interaction.response.send_message(f"✅ Η αίτηση σου: {channel.mention}", ephemeral=True)
 
     # ---------------- START -> πρώτη ερώτηση ----------------
@@ -131,7 +131,7 @@ class Applications(commands.Cog):
         )
         view = ui.LayoutView(timeout=None)
         view.add_item(container)
-        await channel.send(view=view)
+        await channel.send(view=view, flags=discord.MessageFlags(is_components_v2=True))
 
     async def handle_start(self, interaction: discord.Interaction, channel_id: int):
         store = storage.get_store(STORE_NAME)
@@ -175,7 +175,7 @@ class Applications(commands.Cog):
             add_action_row(container, send_btn)
             view = ui.LayoutView(timeout=None)
             view.add_item(container)
-            await message.channel.send(view=view)
+            await message.channel.send(view=view, flags=discord.MessageFlags(is_components_v2=True))
 
     # ---------------- SEND -> log channel με Accept/Deny ----------------
     async def handle_send(self, interaction: discord.Interaction, channel_id: int):
@@ -194,7 +194,7 @@ class Applications(commands.Cog):
 
         container = build_base_container(
             title=f"📋 Νέα Αίτηση — {type_label}",
-            description=f"User: {applicant.mention if applicant else info['user_id']}",
+            description=f"Αιτών: {applicant.mention if applicant else info['user_id']}",
         )
         add_separator(container)
         for q, a in zip(questions, info["answers"]):
@@ -208,7 +208,7 @@ class Applications(commands.Cog):
 
         view = ui.LayoutView(timeout=None)
         view.add_item(container)
-        log_message = await log_channel.send(view=view)
+        log_message = await log_channel.send(view=view, flags=discord.MessageFlags(is_components_v2=True))
 
         info["status"] = "submitted"
         info["log_message_id"] = log_message.id
@@ -233,7 +233,7 @@ class Applications(commands.Cog):
             if role and applicant:
                 await applicant.add_roles(role, reason="Application accepted")
             info["status"] = "accepted"
-            dm_text = f"✅ Η αίτηση σου ({config.APPLICATION_TYPES[info['type']]['label']}) έγινε **δεκτή**! Θα πάρεις ρόλο 'Waiting for Interview'. Ενημέωσε στο κανάλι Interview chat πότε μπορείς για το interview σου."
+            dm_text = f"✅ Η αίτηση σου ({config.APPLICATION_TYPES[info['type']]['label']}) έγινε **δεκτή**! Θα πάρεις ρόλο 'Waiting for Interview'."
         else:
             info["status"] = "denied"
             dm_text = f"❌ Η αίτηση σου ({config.APPLICATION_TYPES[info['type']]['label']}) **απορρίφθηκε**.\nΛόγος: {reason}"
@@ -251,7 +251,7 @@ class Applications(commands.Cog):
         status_text = "✅ **Accepted**" if accepted else f"❌ **Denied** — {reason}"
         container = build_base_container(
             title=f"📋 Αίτηση — {config.APPLICATION_TYPES[info['type']]['label']}",
-            description=f"User: {applicant.mention if applicant else info['user_id']}\n\n{status_text}\nUser Accepted: {interaction.user.mention}",
+            description=f"Αιτών: {applicant.mention if applicant else info['user_id']}\n\n{status_text}\nΧειριστής: {interaction.user.mention}",
         )
         view = ui.LayoutView(timeout=None)
         view.add_item(container)
@@ -277,23 +277,22 @@ class Applications(commands.Cog):
     async def handle_ping_user(self, interaction: discord.Interaction, channel_id: int):
         store = storage.get_store(STORE_NAME)
         info = store.get(str(channel_id))
-        if not info or interaction.user.id != info["user_id"]:
-            await interaction.response.send_message("Μόνο το staff μπορεί να κάνει ping.", ephemeral=True)
+        if not info:
+            await interaction.response.send_message("Δεν βρέθηκε η αίτηση.", ephemeral=True)
+            return
+
+        if not has_roles(interaction.user, config.STAFF_TEAM_ROLE_IDS):
+            await interaction.response.send_message("⛔ Μόνο το staff team μπορεί να κάνει ping τον χρήστη.", ephemeral=True)
             return
 
         guild = interaction.guild
-        mentions = " ".join(f"<@&{rid}>" for rid in config.user)
-        await interaction.response.send_message(f"🔔 {mentions} — Τι χρειάζεσε?", ephemeral=False)
-
-        for role_id in config.user:
-            role = guild.get_role(role_id)
-            if not role:
-                continue
-            for member in role.members:
-                try:
-                    await member.send(f"🔔 Συνέχισε την αίτηση σου.: {interaction.channel.mention}")
-                except discord.Forbidden:
-                    pass
+        applicant = guild.get_member(info["user_id"])
+        await interaction.response.send_message(f"🔔 {applicant.mention if applicant else ''}", ephemeral=False)
+        if applicant:
+            try:
+                await applicant.send(f"🔔 Έχεις ειδοποίηση στην αίτηση σου: {interaction.channel.mention}")
+            except discord.Forbidden:
+                pass
 
     # ---------------- Κεντρικός listener ----------------
     @commands.Cog.listener()
@@ -310,8 +309,8 @@ class Applications(commands.Cog):
             await self.handle_send(interaction, int(custom_id.split(":")[1]))
         elif custom_id.startswith("app_close:"):
             await self.handle_close(interaction, int(custom_id.split(":")[1]))
-        elif custom_id.startswith("app_ping:"):
-            await self.handle_ping_staff(interaction, int(custom_id.split(":")[1]))
+        elif custom_id.startswith("app_ping_user:"):
+            await self.handle_ping_user(interaction, int(custom_id.split(":")[1]))
         elif custom_id.startswith("app_accept:"):
             channel_id = int(custom_id.split(":")[1])
             if not has_roles(interaction.user, config.STAFF_TEAM_ROLE_IDS):
@@ -328,3 +327,4 @@ class Applications(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Applications(bot))
+
