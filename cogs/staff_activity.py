@@ -135,7 +135,7 @@ class StaffActivity(commands.Cog):
     @app_commands.checks.has_any_role(config.OWNERSHIP_ROLE_ID, config.MANAGER_ROLE_ID)
     async def panel_staff_activity(self, interaction: discord.Interaction):
         view = self._build_panel_view(interaction.guild)
-        await interaction.channel.send(view=view)
+        await interaction.channel.send(view=view, flags=discord.MessageFlags(is_components_v2=True))
         await interaction.response.send_message("✅ Στάλθηκε.", ephemeral=True)
 
     @commands.Cog.listener()
